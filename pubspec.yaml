@@ -1,0 +1,18 @@
+name: quran_touch_reader
+description: Quran - Touch where you want to listen
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.0
+  audioplayers: ^6.0.0
+  shared_preferences: ^2.2.2
+  scrollable_positioned_list: ^0.3.8
+
+flutter:
+  uses-material-design: true
