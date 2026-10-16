@@ -1,5 +1,4 @@
 name: quran_touch_reader
-description: Quran Touch Reader
 publish_to: 'none'
 version: 1.0.0+1
 environment:
@@ -8,5 +7,6 @@ dependencies:
   flutter:
     sdk: flutter
   audioplayers: 5.2.1
+  quran: 2.1.1
 flutter:
   uses-material-design: true
