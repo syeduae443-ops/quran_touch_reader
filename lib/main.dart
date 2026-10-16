@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:quran/quran.dart' as quran;
 
 void main() => runApp(const QuranApp());
 
@@ -19,6 +18,8 @@ class QuranApp extends StatelessWidget {
 
 class SurahListPage extends StatelessWidget {
   const SurahListPage({super.key});
+  final List<String> surahNames = const ["Al-Fatiha","Al-Baqarah","Al-Imran","An-Nisa","Al-Ma'idah","Al-An'am","Al-A'raf","Al-Anfal","At-Tawbah","Yunus","Hud","Yusuf","Ar-Ra'd","Ibrahim","Al-Hijr","An-Nahl","Al-Isra","Al-Kahf","Maryam","Ta-Ha","Al-Anbiya","Al-Hajj","Al-Mu'minun","An-Nur","Al-Furqan","Ash-Shu'ara","An-Naml","Al-Qasas","Al-Ankabut","Ar-Rum","Luqman","As-Sajda","Al-Ahzab","Saba","Fatir","Ya-Sin","As-Saffat","Sad","Az-Zumar","Ghafir","Fussilat","Ash-Shura","Az-Zukhruf","Ad-Dukhan","Al-Jathiya","Al-Ahqaf","Muhammad","Al-Fath","Al-Hujurat","Qaf","Adh-Dhariyat","At-Tur","An-Najm","Al-Qamar","Ar-Rahman","Al-Waqi'a","Al-Hadid","Al-Mujadila","Al-Hashr","Al-Mumtahana","As-Saff","Al-Jumu'a","Al-Munafiqun","At-Taghabun","At-Talaq","At-Tahrim","Al-Mulk","Al-Qalam","Al-Haqqah","Al-Ma'arij","Nuh","Al-Jinn","Al-Muzzammil","Al-Muddathir","Al-Qiyama","Al-Insan","Al-Mursalat","An-Naba","An-Nazi'at","Abasa","At-Takwir","Al-Infitar","Al-Mutaffifin","Al-Inshiqaq","Al-Buruj","At-Tariq","Al-A'la","Al-Ghashiya","Al-Fajr","Al-Balad","Ash-Shams","Al-Layl","Ad-Duha","Ash-Sharh","At-Tin","Al-Alaq","Al-Qadr","Al-Bayyina","Az-Zalzala","Al-Adiyat","Al-Qari'a","At-Takathur","Al-Asr","Al-Humaza","Al-Fil","Quraysh","Al-Ma'un","Al-Kawthar","Al-Kafirun","An-Nasr","Al-Masad","Al-Ikhlas","Al-Falaq","An-Nas"];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,14 +32,13 @@ class SurahListPage extends StatelessWidget {
       body: ListView.builder(
         itemCount: 114,
         itemBuilder: (c, i) {
-          int surah = i + 1;
           return Card(
             child: ListTile(
-              leading: CircleAvatar(backgroundColor: Colors.green[700], child: Text('$surah', style: const TextStyle(color: Colors.white))),
-              title: Text(quran.getSurahNameArabic(surah), textAlign: TextAlign.right, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              subtitle: Text('${quran.getSurahNameEnglish(surah)} - ${quran.getVerseCount(surah)} Ayat'),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AyatPage(surahNumber: surah))),
+              leading: CircleAvatar(backgroundColor: Colors.green[700], child: Text('${i+1}', style: const TextStyle(color: Colors.white))),
+              title: Text(surahNames[i]),
+              subtitle: Text('Surah ${i+1} - Touch to Listen'),
+              trailing: const Icon(Icons.play_circle_fill, color: Colors.green),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AyatPage(surahNumber: i+1, surahName: surahNames[i]))),
             ),
           );
         },
@@ -49,7 +49,8 @@ class SurahListPage extends StatelessWidget {
 
 class AyatPage extends StatefulWidget {
   final int surahNumber;
-  const AyatPage({super.key, required this.surahNumber});
+  final String surahName;
+  const AyatPage({super.key, required this.surahNumber, required this.surahName});
   @override
   State<AyatPage> createState() => _AyatPageState();
 }
@@ -78,15 +79,14 @@ class _AyatPageState extends State<AyatPage> {
 
   @override
   Widget build(BuildContext context) {
-    int count = quran.getVerseCount(widget.surahNumber);
     return Scaffold(
       appBar: AppBar(
-        title: Text(quran.getSurahNameArabic(widget.surahNumber)),
+        title: Text(widget.surahName),
         backgroundColor: Colors.green[800],
         foregroundColor: Colors.white,
       ),
       body: ListView.builder(
-        itemCount: count,
+        itemCount: 10,
         padding: const EdgeInsets.all(10),
         itemBuilder: (c, i) {
           int ayahNum = i + 1;
@@ -95,8 +95,8 @@ class _AyatPageState extends State<AyatPage> {
             color: isPlaying? Colors.green[100] : Colors.white,
             child: ListTile(
               leading: Icon(isPlaying? Icons.volume_up : Icons.play_circle_fill, color: Colors.green[700], size: 32),
-              title: Text(quran.getVerse(widget.surahNumber, ayahNum), textAlign: TextAlign.right, style: const TextStyle(fontSize: 22, height: 1.8)),
-              subtitle: Text('Ayat $ayahNum - Touch for Voice'),
+              title: Text('Surah ${widget.surahName} - Ayat $ayahNum', textAlign: TextAlign.left, style: const TextStyle(fontSize: 18)),
+              subtitle: const Text('Touch to Play Tilawat - Alafasy'),
               onTap: () => playAyat(ayahNum),
             ),
           );
