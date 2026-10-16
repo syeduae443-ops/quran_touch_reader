@@ -7,6 +7,5 @@ dependencies:
   flutter:
     sdk: flutter
   audioplayers: 5.2.1
-  quran: 2.1.1
 flutter:
   uses-material-design: true
