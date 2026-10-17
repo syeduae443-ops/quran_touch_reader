@@ -5,23 +5,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Kaba Logo Asset
-        run: |
-          mkdir -p assets
-          echo "Kaba logo will be used - if not present, app uses mosque icon fallback"
+      
       - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
+      
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.2'
-      - run: |
-          flutter config --no-analytics
+          channel: 'stable'
+      
+      - name: Build APK
+        run: |
           flutter create . --platforms=android --org com.quran.kaba25
           flutter pub get
-          flutter build apk --release --split-per-abi
-      - uses: actions/upload-artifact@v4
+          flutter build apk --release
+      
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
-          name: Quran-25-Languages-Kaba-Voice-Safety-APK
+          name: Quran-25-Languages-Final-APK
           path: build/app/outputs/flutter-apk/app-release.apk
