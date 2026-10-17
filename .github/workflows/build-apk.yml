@@ -5,14 +5,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Create Fixed Files
+      
+      - name: Create Telugu App
         run: |
           cat > pubspec.yaml << 'YAML'
           name: quran_touch_reader
-          description: Quran Shareef Reader
+          description: Quran Shareef Reader Telugu
           publish_to: 'none'
-          version: 1.0.0+1
+          version: 1.0.0+2
           environment:
             sdk: ">=3.0.0 <4.0.0"
           dependencies:
@@ -22,37 +22,76 @@ jobs:
           flutter:
             uses-material-design: true
           YAML
-          
+
           mkdir -p lib
           cat > lib/main.dart << 'DART'
           import 'package:flutter/material.dart';
-          void main()=>runApp(MaterialApp(debugShowCheckedModeBanner:false,home:Scaffold(appBar:AppBar(title:Text('Quran Shareef Reader'),backgroundColor:Colors.green[800]),body:Center(child:Column(mainAxisAlignment:MainAxisAlignment.center,children:[Icon(Icons.mosque,size:80,color:Colors.green),SizedBox(height:20),Text('القرآن الكريم',style:TextStyle(fontSize:32)),Text('Quran Shareef Reader - Build Success!',style:TextStyle(color:Colors.green))])))));
+          void main()=>runApp(QuranApp());
+          class QuranApp extends StatelessWidget{
+            @override
+            Widget build(BuildContext context){
+              return MaterialApp(debugShowCheckedModeBanner:false,home:QuranHome());
+            }
+          }
+          class QuranHome extends StatefulWidget{
+            @override
+            _QuranHomeState createState()=>_QuranHomeState();
+          }
+          class _QuranHomeState extends State<QuranHome>{
+            String selectedLang='Telugu';
+            Map<String, Map<String,String>> langData={
+              'Urdu':{'title':'Quran Shareef Reader','tarjuma':'Shuru Allah ke naam se jo bada meherbaan nihayat rehem wala hai','btn':'Tilawat Suno'},
+              'English':{'title':'Quran Reader','tarjuma':'In the name of Allah, Most Gracious, Most Merciful','btn':'Play Audio'},
+              'Telugu':{'title':'ఖురాన్ షరీఫ్ రీడర్','tarjuma':'అనంత కరుణామయుడు, అపార కృపాశీలుడైన అల్లాహ్ పేరుతో ప్రారంభిస్తున్నాను','btn':'తిలావత్ వినండి'},
+              'Hindi':{'title':'कुरान शरीफ रीडर','tarjuma':'अल्लाह के नाम से जो बड़ा दयालु अत्यंत कृपालु है','btn':'तिलावत सुनो'},
+            };
+            @override
+            Widget build(BuildContext context){
+              var t=langData[selectedLang]!;
+              return Scaffold(
+                appBar:AppBar(title:Text(t['title']!),backgroundColor:Color(0xFF1B5E20),centerTitle:true),
+                body:Column(children:[
+                  Container(color:Colors.white,padding:EdgeInsets.all(8),child:Row(mainAxisAlignment:MainAxisAlignment.spaceEvenly,children:[
+                    langBtn('Urdu','اردو'),langBtn('English','EN'),langBtn('Telugu','తెలుగు'),langBtn('Hindi','हिंदी'),
+                  ])),
+                  Container(width:double.infinity,padding:EdgeInsets.all(20),color:Color(0xFF1B5E20),child:Column(children:[
+                    Icon(Icons.mosque,size:50,color:Colors.white),
+                    Text('القرآن الكريم',style:TextStyle(fontSize:28,color:Colors.white,fontWeight:FontWeight.bold)),
+                    Text(t['title']!,style:TextStyle(color:Colors.white70)),
+                  ])),
+                  Expanded(child:ListView(padding:EdgeInsets.all(16),children:[
+                    Container(padding:EdgeInsets.all(20),decoration:BoxDecoration(color:Colors.white,borderRadius:BorderRadius.circular(15)),child:Column(children:[
+                      Text('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',style:TextStyle(fontSize:28)),
+                      Divider(),
+                      Text(t['tarjuma']!,textAlign:TextAlign.center,style:TextStyle(fontSize:18,color:Color(0xFF1B5E20),fontWeight:FontWeight.bold)),
+                      SizedBox(height:20),
+                      ElevatedButton(icon:Icon(Icons.play_arrow),label:Text(t['btn']!),style:ElevatedButton.styleFrom(backgroundColor:Color(0xFF1B5E20),foregroundColor:Colors.white,minimumSize:Size(double.infinity,45)),onPressed:(){}),
+                      SizedBox(height:10),
+                      Text('Language: $selectedLang ✅',style:TextStyle(color:Colors.green)),
+                    ])),
+                  ])),
+                ]),
+              );
+            }
+            Widget langBtn(String lang,String label){
+              bool sel=selectedLang==lang;
+              return GestureDetector(onTap:(){setState(()=>selectedLang=lang);},child:Container(padding:EdgeInsets.symmetric(horizontal:12,vertical:6),decoration:BoxDecoration(color:sel?Color(0xFF1B5E20):Colors.grey.shade200,borderRadius:BorderRadius.circular(20)),child:Text(label,style:TextStyle(color:sel?Colors.white:Colors.black,fontWeight:FontWeight.bold))));
+            }
+          }
           DART
 
       - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
-
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.2'
-          channel: 'stable'
-
-      - name: Create Android Folder
-        run: |
-          ls -la
-          if [ ! -d "android" ]; then
-            echo "Android folder missing - Creating..."
-            flutter create . --platforms=android --org com.quran.reader
-          fi
+      - run: |
+          if [ ! -d "android" ]; then flutter create . --platforms=android --org com.quran.reader; fi
           flutter pub get
-
-      - name: Build APK
-        run: flutter build apk --release --verbose
-
-      - name: Upload
-        uses: actions/upload-artifact@v4
+          flutter build apk --release
+      - uses: actions/upload-artifact@v4
         with:
-          name: Quran-APK
+          name: Quran-Telugu-APK
           path: build/app/outputs/flutter-apk/app-release.apk
