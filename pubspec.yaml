@@ -1,5 +1,5 @@
 name: quran_touch_reader
-description: Quran Shareef Reader - Kaba Logo
+description: Quran Shareef Reader
 publish_to: 'none'
 version: 1.0.0+1
 environment:
@@ -10,15 +10,5 @@ dependencies:
   quran: ^1.2.3
   just_audio: ^0.9.36
   cupertino_icons: ^1.0.2
-
-dev_dependencies:
-  flutter_launcher_icons: ^0.13.1
-
-flutter_launcher_icons:
-  android: "launcher_icon"
-  ios: false
-  image_path: "assets/icon.png"
-  min_sdk_android: 21
-
 flutter:
   uses-material-design: true
