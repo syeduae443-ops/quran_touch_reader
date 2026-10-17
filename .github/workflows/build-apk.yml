@@ -3,44 +3,25 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
-      - name: Fix Manifest
+
+      - name: Recreate Android Folder
         run: |
-          mkdir -p android/app/src/main
-          cat > android/app/src/main/AndroidManifest.xml << 'EOF'
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-              <uses-permission android:name="android.permission.INTERNET" />
-              <application
-                  android:label="Quran Shareef Reader"
-                  android:name="${applicationName}"
-                  android:icon="@mipmap/launcher_icon">
-                  <activity
-                      android:name=".MainActivity"
-                      android:exported="true"
-                      android:launchMode="singleTop"
-                      android:theme="@style/LaunchTheme"
-                      android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-                      android:hardwareAccelerated="true"
-                      android:windowSoftInputMode="adjustResize">
-                      <meta-data android:name="io.flutter.embedding.android.NormalTheme" android:resource="@style/NormalTheme" />
-                      <intent-filter>
-                          <action android:name="android.intent.action.MAIN"/>
-                          <category android:name="android.intent.category.LAUNCHER"/>
-                      </intent-filter>
-                  </activity>
-                  <meta-data android:name="flutterEmbedding" android:value="2" />
-              </application>
-          </manifest>
-          EOF
-      - run: flutter clean
+          rm -rf android
+          flutter create . --platforms=android
+          # Change app name to Quran Shareef Reader
+          sed -i 's/android:label="quran_touch_reader"/android:label="Quran Shareef Reader"/g' android/app/src/main/AndroidManifest.xml
+
       - run: flutter pub get
-      - run: flutter build apk --release --no-tree-shake-icons
+      - run: flutter build apk --release
+
       - uses: actions/upload-artifact@v4
         with:
           name: Quran-Shareef-Reader-APK
