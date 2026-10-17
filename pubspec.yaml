@@ -7,8 +7,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  quran: ^1.2.3
-  just_audio: ^0.9.36
   cupertino_icons: ^1.0.2
 flutter:
   uses-material-design: true
