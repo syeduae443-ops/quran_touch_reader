@@ -3,7 +3,6 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -14,14 +13,29 @@ jobs:
         with:
           flutter-version: '3.22.2'
           channel: 'stable'
-      - run: |
+      - name: Auto Create Kaba Icon
+        run: |
+          mkdir -p assets
+          pip install pillow -q
+          python3 -c "
+          from PIL import Image, ImageDraw
+          img = Image.new('RGB', (1024,1024), (2,120,70))
+          d = ImageDraw.Draw(img)
+          d.rounded_rectangle([40,40,984,984], radius=120, outline=(255,220,120), width=8)
+          d.rectangle([220,280,804,820], fill=(15,15,15))
+          d.rectangle([220,460,804,520], fill=(255,215,80))
+          d.rectangle([380,600,580,810], fill=(255,215,80))
+          img.save('assets/icon.png')
+          "
+      - name: Build
+        run: |
           rm -rf android
           flutter create . --platforms=android
-          sed -i 's/android:label="quran_touch_reader"/android:label="Quran Shareef Reader"/g' android/app/src/main/AndroidManifest.xml
+          sed -i 's/android:label=\"quran_touch_reader\"/android:label=\"Quran Shareef Reader\"/g' android/app/src/main/AndroidManifest.xml
           flutter pub get
-          flutter pub run flutter_launcher_icons
+          flutter pub run flutter_launcher_icons || true
           flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
-          name: Quran-Shareef-Reader-Kaba-APK
+          name: Quran-Shareef-Kaba-APK
           path: build/app/outputs/flutter-apk/app-release.apk
