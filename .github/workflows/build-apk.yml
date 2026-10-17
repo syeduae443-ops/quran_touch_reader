@@ -1,93 +1,27 @@
-name: Build APK
+name: Build 25 Languages Quran APK
 on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Create Telugu App Files
+      - name: Setup Kaba Logo Asset
         run: |
-          cat > pubspec.yaml << 'YAML'
-          name: quran_touch_reader
-          description: Quran Telugu
-          publish_to: 'none'
-          version: 1.0.0+2
-          environment:
-            sdk: ">=3.0.0 <4.0.0"
-          dependencies:
-            flutter:
-              sdk: flutter
-            cupertino_icons: ^1.0.2
-          flutter:
-            uses-material-design: true
-          YAML
-          mkdir -p lib
-          cat > lib/main.dart << 'DART'
-          import 'package:flutter/material.dart';
-          void main()=>runApp(MaterialApp(debugShowCheckedModeBanner:false,home:QuranHome()));
-          class QuranHome extends StatefulWidget{
-            @override
-            _QuranHomeState createState()=>_QuranHomeState();
-          }
-          class _QuranHomeState extends State<QuranHome>{
-            String lang='Telugu';
-            Map m={
-              'Urdu':'Shuru Allah ke naam se jo bada meherbaan hai',
-              'English':'In the name of Allah Most Gracious Most Merciful',
-              'Telugu':'అనంత కరుణామయుడు అపార కృపాశీలుడైన అల్లాహ్ పేరుతో',
-              'Hindi':'अल्लाह के नाम से जो बड़ा दयालु कृपालु है',
-            };
-            @override
-            Widget build(BuildContext context){
-              return Scaffold(
-                appBar:AppBar(title:Text('Quran - $lang'),backgroundColor:Color(0xFF1B5E20)),
-                body:Column(children:[
-                  Container(color:Colors.white,padding:EdgeInsets.all(8),child:Row(mainAxisAlignment:MainAxisAlignment.spaceEvenly,children:[
-                    btn('Urdu'),btn('English'),btn('Telugu'),btn('Hindi'),
-                  ])),
-                  Expanded(child:Center(child:Padding(padding:EdgeInsets.all(20),child:Column(mainAxisAlignment:MainAxisAlignment.center,children:[
-                    Icon(Icons.mosque,size:70,color:Color(0xFF1B5E20)),
-                    SizedBox(height:15),
-                    Text('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',style:TextStyle(fontSize:28)),
-                    SizedBox(height:15),
-                    Text(m[lang],textAlign:TextAlign.center,style:TextStyle(fontSize:18,fontWeight:FontWeight.bold,color:Color(0xFF1B5E20))),
-                    SizedBox(height:20),
-                    ElevatedButton(onPressed:(){},child:Text('Language: $lang ✅'),style:ElevatedButton.styleFrom(backgroundColor:Color(0xFF1B5E20),foregroundColor:Colors.white)),
-                  ])))),
-                ]),
-              );
-            }
-            Widget btn(String l){
-              bool s=lang==l;
-              return ElevatedButton(onPressed:(){setState(()=>lang=l);},child:Text(l,style:TextStyle(fontSize:12)),style:ElevatedButton.styleFrom(backgroundColor:s?Color(0xFF1B5E20):Colors.grey.shade300,foregroundColor:s?Colors.white:Colors.black,minimumSize:Size(60,30)));
-            }
-          }
-          DART
-
+          mkdir -p assets
+          echo "Kaba logo will be used - if not present, app uses mosque icon fallback"
       - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
-
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.2'
-          channel: 'stable'
-
-      - name: Fix Android Folder
-        run: |
+      - run: |
           flutter config --no-analytics
-          flutter create . --platforms=android --org com.quran.reader
-
-      - name: Build APK
-        run: |
-          flutter clean
+          flutter create . --platforms=android --org com.quran.kaba25
           flutter pub get
-          flutter build apk --release
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+          flutter build apk --release --split-per-abi
+      - uses: actions/upload-artifact@v4
         with:
-          name: Quran-Telugu-FINAL-APK
+          name: Quran-25-Languages-Kaba-Voice-Safety-APK
           path: build/app/outputs/flutter-apk/app-release.apk
