@@ -1,20 +1,16 @@
 name: Build APK
 on: [push]
-
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Fix All Files Auto
+      - name: Create Fixed Files
         run: |
-          # pubspec.yaml sahi karo
           cat > pubspec.yaml << 'YAML'
           name: quran_touch_reader
-          description: Quran Shareef Reader - Kaba
+          description: Quran Shareef Reader
           publish_to: 'none'
           version: 1.0.0+1
           environment:
@@ -26,95 +22,37 @@ jobs:
           flutter:
             uses-material-design: true
           YAML
-
-          # main.dart sahi karo
+          
           mkdir -p lib
           cat > lib/main.dart << 'DART'
           import 'package:flutter/material.dart';
-          void main() => runApp(QuranApp());
-          class QuranApp extends StatelessWidget {
-            @override
-            Widget build(BuildContext context) {
-              return MaterialApp(
-                debugShowCheckedModeBanner: false,
-                home: Scaffold(
-                  backgroundColor: Color(0xFFE8F5E9),
-                  appBar: AppBar(
-                    title: Text('Quran Shareef Reader', style: TextStyle(color: Colors.white)),
-                    backgroundColor: Color(0xFF1B5E20),
-                    centerTitle: true,
-                  ),
-                  body: ListView(
-                    padding: EdgeInsets.all(16),
-                    children: [
-                      Card(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                        elevation: 4,
-                        child: Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Column(
-                            children: [
-                              Icon(Icons.mosque, size: 60, color: Color(0xFF1B5E20)),
-                              SizedBox(height: 10),
-                              Text('القرآن الكريم', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
-                              Text('Quran Shareef', style: TextStyle(fontSize: 20, color: Colors.green)),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      Container(
-                        padding: EdgeInsets.all(16),
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.green.shade200)),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', textAlign: TextAlign.right, style: TextStyle(fontSize: 28, height: 2.2)),
-                            Divider(),
-                            Text('Bismillah hir Rahman nir Raheem', style: TextStyle(fontStyle: FontStyle.italic)),
-                            SizedBox(height: 4),
-                            Text('Shuru Allah ke naam se jo bada meherbaan nihayat rehem wala hai', style: TextStyle(fontSize: 16)),
-                            SizedBox(height: 12),
-                            ElevatedButton.icon(
-                              onPressed: (){},
-                              icon: Icon(Icons.play_arrow),
-                              label: Text('Tilawat Suno'),
-                              style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF1B5E20), foregroundColor: Colors.white),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      Center(child: Text('✅ Build Successful - Ab Kaba Logo Add Karenge', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold))),
-                    ],
-                  ),
-                ),
-              );
-            }
-          }
+          void main()=>runApp(MaterialApp(debugShowCheckedModeBanner:false,home:Scaffold(appBar:AppBar(title:Text('Quran Shareef Reader'),backgroundColor:Colors.green[800]),body:Center(child:Column(mainAxisAlignment:MainAxisAlignment.center,children:[Icon(Icons.mosque,size:80,color:Colors.green),SizedBox(height:20),Text('القرآن الكريم',style:TextStyle(fontSize:32)),Text('Quran Shareef Reader - Build Success!',style:TextStyle(color:Colors.green))])))));
           DART
-          cat pubspec.yaml
-          cat lib/main.dart
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.2'
           channel: 'stable'
 
-      - name: Build APK
+      - name: Create Android Folder
         run: |
+          ls -la
+          if [ ! -d "android" ]; then
+            echo "Android folder missing - Creating..."
+            flutter create . --platforms=android --org com.quran.reader
+          fi
           flutter pub get
-          flutter build apk --release
 
-      - name: Upload APK
+      - name: Build APK
+        run: flutter build apk --release --verbose
+
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: Quran-Shareef-Kaba-APK
+          name: Quran-APK
           path: build/app/outputs/flutter-apk/app-release.apk
